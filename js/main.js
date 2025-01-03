@@ -14,7 +14,7 @@ const onSuccess = (data) => {
   });
 };
 
-const onError = (error) => {
+const onError = () => {
   const errorContainer = document.createElement('div');
   errorContainer.classList.add('data-error');
   errorContainer.textContent = 'Ошибка при загрузке данных';

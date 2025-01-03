@@ -10,33 +10,22 @@ const METHOD = {
   POST: 'POST',
 };
 
-const serverRequest = (route, method = METHOD.GET, body = null) => {
-  return fetch(`${BASE_URL}${route}`, { method, body })
+const serverRequest = (route, method = METHOD.GET, body = null) =>
+  fetch(`${BASE_URL}${route}`, { method, body })
     .then((response) => response.json())
     .catch((error) => {
       throw new Error(error);
     });
-};
 
-const fetchPhotos = (onSuccess, onError) => {
+const fetchPhotos = (onSuccess, onError) =>
   serverRequest(ROUTE.GET_DATA, METHOD.GET)
-    .then((data) => {
-      onSuccess(data);
-    })
-    .catch((error) => {
-      onError(error);
-    });
-};
+    .then((data) => onSuccess(data))
+    .catch(onError);
 
-const sendPhotoData = (body, onSuccess, onError) => {
+const sendPhotoData = (body, onSuccess, onError) =>
   serverRequest(ROUTE.SEND_DATA, METHOD.POST, body)
-    .then((data) => {
-      onSuccess(data);
-    })
-    .catch((error) => {
-      onError(error);
-    });
-};
+    .then((data) => onSuccess(data))
+    .catch(onError);
 
 export { fetchPhotos, sendPhotoData };
 
