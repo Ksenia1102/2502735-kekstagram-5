@@ -42,19 +42,15 @@ document.addEventListener('keydown', ({ key, target }) => {
   }
 });
 
-const setupSuccessMessageCloseHandlers = (successMessage) => {
-  function closeSuccessMessage() {
-    successMessage.remove();
-    document.removeEventListener('keydown', onEscKeyDown);
-  }
-
-  function onEscKeyDown(event) {
+const setupSuccessMessageCloseHandlers = (successMessage, closeSuccessMessage) => {
+  const onEscKeyDown = (event) => {
     if (event.key === 'Escape') {
       closeSuccessMessage();
     }
-  }
+  };
 
   successMessage.querySelector('.success__button').addEventListener('click', closeSuccessMessage);
+
   document.addEventListener('keydown', onEscKeyDown);
 
   successMessage.addEventListener('click', (event) => {
@@ -149,7 +145,7 @@ form.addEventListener('submit', async (event) => {
       closeForm();
     };
 
-    setupSuccessMessageCloseHandlers(successMessage);
+    setupSuccessMessageCloseHandlers(successMessage, closeSuccessMessage);
     closeForm();
   };
 
