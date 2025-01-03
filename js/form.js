@@ -43,8 +43,8 @@ document.addEventListener('keydown', ({ key, target }) => {
 });
 
 const closeSuccessMessageOption = (successMessage, closeSuccessMessage) => {
-  const onEscKeyDown = (event) => {
-    if (event.key === 'Escape') {
+  const onEscKeyDown = ({ key }) => {
+    if (key === 'Escape') {
       closeSuccessMessage();
     }
   };
@@ -53,8 +53,8 @@ const closeSuccessMessageOption = (successMessage, closeSuccessMessage) => {
 
   document.addEventListener('keydown', onEscKeyDown);
 
-  successMessage.addEventListener('click', (event) => {
-    if (event.target === successMessage) {
+  successMessage.addEventListener('click', ({ target }) => {
+    if (target === successMessage) {
       closeSuccessMessage();
     }
   });
@@ -86,15 +86,15 @@ fileInput.addEventListener('change', () => {
 
       errorMessage.querySelector('.error__button').addEventListener('click', closeErrorMessage);
 
-      const onEscKeyDown = (event) => {
-        if (event.key === 'Escape') {
+      const onEscKeyDown = ({ key }) => {
+        if (key === 'Escape') {
           closeErrorMessage();
         }
       };
       document.addEventListener('keydown', onEscKeyDown);
 
-      errorMessage.addEventListener('click', (event) => {
-        if (event.target === errorMessage) {
+      errorMessage.addEventListener('click', ({ target }) => {
+        if (target === errorMessage) {
           closeErrorMessage();
         }
       });
@@ -174,11 +174,12 @@ form.addEventListener('submit', async (event) => {
 
     errorMessage.querySelector('.error__button').addEventListener('click', closeErrorMessage);
 
-    errorMessage.addEventListener('click', (event) => {
-      if (event.target === errorMessage) {
+    const onEscKeyDown = ({ key }) => {
+      if (key === 'Escape') {
         closeErrorMessage();
       }
-    });
+    };
+    document.addEventListener('keydown', onEscKeyDown);
   };
 
   try {
