@@ -1,36 +1,42 @@
 const BASE_URL = 'https://29.javascript.htmlacademy.pro/kekstagram';
 
-export const fetchPhotos = () => {
-  const promis = fetch(`${BASE_URL}/data`, {
-    method: 'GET'
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Ошибка: ${response.status}`);
-      }
-      return response.json();
-    })
-    .catch((error) => {
-      throw new Error(`Не удалось загрузить данные: ${error.message}`);
-    });
-
-  return promis;
+const ROUTE = {
+  GET_DATA: '/data',
+  SEND_DATA: '/',
 };
 
-export const sendPhotoData = (formData) => {
-  const promis = fetch(BASE_URL, {
-    method: 'POST',
-    body: formData,
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Ошибка: ${response.status}`);
-      }
-      return response.json();
+const METHOD = {
+  GET: 'GET',
+  POST: 'POST',
+};
+
+const serverRequest = (route, method = METHOD.GET, body = null) => {
+  return fetch(`${BASE_URL}${route}`, { method, body })
+    .then((response) => response.json())
+    .catch((error) => {
+      throw new Error(error);
+    });
+};
+
+const fetchPhotos = (onSuccess, onError) => {
+  serverRequest(ROUTE.GET_DATA, METHOD.GET)
+    .then((data) => {
+      onSuccess(data);
     })
     .catch((error) => {
-      throw new Error(`Не удалось отправить данные: ${error.message}`);
+      onError(error);
     });
-
-  return promis;
 };
+
+const sendPhotoData = (body, onSuccess, onError) => {
+  serverRequest(ROUTE.SEND_DATA, METHOD.POST, body)
+    .then((data) => {
+      onSuccess(data);
+    })
+    .catch((error) => {
+      onError(error);
+    });
+};
+
+export { fetchPhotos, sendPhotoData };
+

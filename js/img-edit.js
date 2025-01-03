@@ -3,24 +3,26 @@ const scaleControlBigger = document.querySelector('.scale__control--bigger');
 const scaleControlValue = document.querySelector('.scale__control--value');
 const imagePreview = document.querySelector('.img-upload__preview img');
 const effectLevelSlider = document.querySelector('.effect-level__slider');
+const effectLevelContainer = document.querySelector('.img-upload__effect-level');
 const effectLevelValue = document.querySelector('.effect-level__value');
 const effectsList = document.querySelector('.effects__list');
-const effectLevelContainer = document.querySelector('.img-upload__effect-level');
 
 const scaleStep = 25;
 const scaleMin = 25;
 const scaleMax = 100;
 let currentScale = 100;
-let currentEffect = 'none';
 
-const effectsImage = {
-  none: { filter: '', range: [0, 0], step: 0, unit: '' },
-  chrome: { filter: 'grayscale', range: [0, 1], step: 0.1, unit: '' },
-  sepia: { filter: 'sepia', range: [0, 1], step: 0.1, unit: '' },
-  marvin: { filter: 'invert', range: [0, 100], step: 1, unit: '%' },
-  phobos: { filter: 'blur', range: [0, 3], step: 0.1, unit: 'px' },
-  heat: { filter: 'brightness', range: [1, 3], step: 0.1, unit: '' },
-};
+const EFFECTS = [
+  { name: 'none', style: 'none', min: 0, max: 0, step: 0, unit: '' },
+  { name: 'chrome', style: 'grayscale', min: 0, max: 1, step: 0.1, unit: '' },
+  { name: 'sepia', style: 'sepia', min: 0, max: 1, step: 0.1, unit: '' },
+  { name: 'marvin', style: 'invert', min: 0, max: 100, step: 1, unit: '%' },
+  { name: 'phobos', style: 'blur', min: 0, max: 3, step: 0.1, unit: 'px' },
+  { name: 'heat', style: 'brightness', min: 1, max: 3, step: 0.1, unit: '' },
+];
+
+const DEFAULT_EFFECT = EFFECTS[0];
+let chosenEffect = DEFAULT_EFFECT;
 
 const updateScale = () => {
   scaleControlValue.value = `${currentScale}%`;
@@ -41,53 +43,73 @@ scaleControlBigger.addEventListener('click', () => {
   }
 });
 
-const applyEffect = (effect) => {
-  const { filter, range, unit } = effectsImage[effect];
+const isDefault = () => chosenEffect === DEFAULT_EFFECT;
 
-  if (effect === 'none') {
+const updateSlider = () => {
+  if (isDefault()) {
     effectLevelContainer.classList.add('hidden');
-    imagePreview.style.filter = '';
-    effectLevelValue.value = '';
+    effectLevelSlider.noUiSlider.set(chosenEffect.min);
     return;
   }
-
   effectLevelContainer.classList.remove('hidden');
   effectLevelSlider.noUiSlider.updateOptions({
-    range: { min: range[0], max: range[1] },
-    start: range[1],
-    step: effectsImage[effect].step,
+    range: {
+      min: chosenEffect.min,
+      max: chosenEffect.max,
+    },
+    step: chosenEffect.step,
+    start: chosenEffect.max,
   });
-
-  effectLevelSlider.noUiSlider.on('update', ([value]) => {
-    imagePreview.style.filter = `${filter}(${value}${unit})`;
-    effectLevelValue.value = value;
-  });
-  imagePreview.style.filter = `${filter}(${range[1]}${unit})`;
-  effectLevelValue.value = range[1];
 };
 
-effectsList.addEventListener('change', ({ target: { name, value } }) => {
-  if (name === 'effect') {
-    currentEffect = value;
-    applyEffect(currentEffect);
+const applyEffect = () => {
+  const sliderValue = effectLevelSlider.noUiSlider.get();
+  if (isDefault()) {
+    imagePreview.style.filter = '';
+    imagePreview.className = '';
+  } else {
+    imagePreview.style.filter = `${chosenEffect.style}(${sliderValue}${chosenEffect.unit})`;
+    imagePreview.className = `effects__preview--${chosenEffect.name}`;
   }
-});
+  effectLevelValue.value = sliderValue;
+};
+
+const onFormChange = (evt) => {
+  if (!evt.target.classList.contains('effects__radio')) {
+    return;
+  }
+  chosenEffect = EFFECTS.find((effect) => effect.name === evt.target.value);
+
+  effectLevelSlider.noUiSlider.set(chosenEffect.max);
+
+  updateSlider();
+  applyEffect();
+};
 
 noUiSlider.create(effectLevelSlider, {
-  range: { min: 0, max: 1 },
-  start: 1,
-  step: 0.1,
+  range: {
+    min: DEFAULT_EFFECT.min,
+    max: DEFAULT_EFFECT.max,
+  },
+  start: DEFAULT_EFFECT.max,
+  step: DEFAULT_EFFECT.step,
   connect: 'lower',
 });
-effectLevelContainer.classList.add('hidden');
+
+effectLevelSlider.noUiSlider.on('update', applyEffect);
+effectsList.addEventListener('change', onFormChange);
 
 export const resetEffects = () => {
   currentScale = 100;
-  currentEffect = 'none';
+  chosenEffect = DEFAULT_EFFECT;
   updateScale();
-  applyEffect(currentEffect);
+  updateSlider();
+  applyEffect();
 };
 
 export const applyPreviewImage = (src) => {
   imagePreview.src = src;
 };
+
+updateSlider();
+

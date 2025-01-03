@@ -1,13 +1,15 @@
 import { sendPhotoData } from './server-api.js';
 import { resetEffects, applyPreviewImage } from './img-edit.js';
 
+const FILE_TYPES = ['jpg', 'jpeg', 'png'];
+
 const form = document.querySelector('.img-upload__form');
 const fileInput = form.querySelector('#upload-file');
 const overlay = form.querySelector('.img-upload__overlay');
 const cancelButton = form.querySelector('#upload-cancel');
 const hashtagsInput = form.querySelector('.text__hashtags');
 const descriptionInput = form.querySelector('.text__description');
-const submitButton = form.querySelector('#upload-submit');
+const submitButton = form.querySelector('[type="submit"]');
 
 const successTemplate = document.querySelector('#success').content.querySelector('.success');
 const errorTemplate = document.querySelector('#error').content.querySelector('.error');
@@ -40,21 +42,53 @@ document.addEventListener('keydown', ({ key, target }) => {
   }
 });
 
+const setupSuccessMessageCloseHandlers = (successMessage) => {
+  const closeSuccessMessage = () => {
+    successMessage.remove();
+    document.removeEventListener('keydown', onEscKeyDown);
+  };
+
+  const onEscKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      closeSuccessMessage();
+    }
+  };
+
+  successMessage.querySelector('.success__button').addEventListener('click', closeSuccessMessage);
+  document.addEventListener('keydown', onEscKeyDown);
+};
+
 fileInput.addEventListener('change', () => {
   const file = fileInput.files[0];
   if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      applyPreviewImage(reader.result);
-      openForm();
-    };
-    reader.readAsDataURL(file);
+    const fileName = file.name.toLowerCase();
+    const isValidFileType = FILE_TYPES.some((type) => fileName.endsWith(type));
+
+    if (isValidFileType) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        applyPreviewImage(reader.result);
+        openForm();
+      };
+      reader.readAsDataURL(file);
+    } else {
+      fileInput.value = '';
+      const errorMessage = errorTemplate.cloneNode(true);
+      errorMessage.querySelector('.error__title').textContent = 'Неподдерживаемый формат файла';
+      document.body.appendChild(errorMessage);
+
+      const closeErrorMessage = () => {
+        errorMessage.remove();
+      };
+
+      errorMessage.querySelector('.error__button').addEventListener('click', closeErrorMessage);
+    }
   }
 });
 
 const validateHashtags = (value) => {
   if (!value) {
-    return false;
+    return true;
   }
 
   const hashtags = value.trim().toLowerCase().split(/\s+/);
@@ -64,9 +98,6 @@ const validateHashtags = (value) => {
 };
 
 const getHashtagErrorMessage = (value) => {
-  if (!value) {
-    return 'Поле хэш-тегов не должно быть пустым';
-  }
   const hashtags = value.trim().split(/\s+/);
   if (hashtags.length > 5) {
     return 'Не более 5 хэш-тегов';
@@ -80,10 +111,17 @@ const getHashtagErrorMessage = (value) => {
   return '';
 };
 
-const validateDescription = (value) => value.length <= 140;
+const validateDescription = (value) => value.length <= 140 || value.trim() === '';
 
-pristine.addValidator(hashtagsInput, validateHashtags, getHashtagErrorMessage,true);
+pristine.addValidator(hashtagsInput, validateHashtags, getHashtagErrorMessage, true);
 pristine.addValidator(descriptionInput, validateDescription, 'Длина комментария не может составлять больше 140 символов');
+
+descriptionInput.addEventListener('input', () => {
+  if (descriptionInput.value.trim().length <= 140) {
+    pristine.reset();
+  }
+  pristine.validate(descriptionInput);
+});
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -96,9 +134,7 @@ form.addEventListener('submit', async (event) => {
   submitButton.disabled = true;
   const formData = new FormData(form);
 
-  try {
-    await sendPhotoData(formData);
-
+  const onSuccess = () => {
     const successMessage = successTemplate.cloneNode(true);
     document.body.appendChild(successMessage);
 
@@ -107,8 +143,11 @@ form.addEventListener('submit', async (event) => {
       closeForm();
     };
 
-    successMessage.querySelector('.success__button').addEventListener('click', closeSuccessMessage);
-  } catch {
+    setupSuccessMessageCloseHandlers(successMessage);
+    closeForm();
+  };
+
+  const onError = () => {
     const errorMessage = errorTemplate.cloneNode(true);
     document.body.appendChild(errorMessage);
 
@@ -118,6 +157,10 @@ form.addEventListener('submit', async (event) => {
     };
 
     errorMessage.querySelector('.error__button').addEventListener('click', closeErrorMessage);
+  };
+
+  try {
+    await sendPhotoData(formData, onSuccess, onError);
   } finally {
     submitButton.disabled = false;
   }
