@@ -43,15 +43,15 @@ document.addEventListener('keydown', ({ key, target }) => {
 });
 
 const setupSuccessMessageCloseHandlers = (successMessage) => {
-  const closeSuccessMessage = () => {
-    successMessage.remove();
-    document.removeEventListener('keydown', onEscKeyDown);
-  };
-
   const onEscKeyDown = (event) => {
     if (event.key === 'Escape') {
       closeSuccessMessage();
     }
+  };
+
+  const closeSuccessMessage = () => {
+    successMessage.remove();
+    document.removeEventListener('keydown', onEscKeyDown);
   };
 
   successMessage.querySelector('.success__button').addEventListener('click', closeSuccessMessage);
