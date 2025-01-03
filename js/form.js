@@ -42,7 +42,7 @@ document.addEventListener('keydown', ({ key, target }) => {
   }
 });
 
-const setupSuccessMessageCloseHandlers = (successMessage, closeSuccessMessage) => {
+const closeSuccessMessageOption = (successMessage, closeSuccessMessage) => {
   const onEscKeyDown = (event) => {
     if (event.key === 'Escape') {
       closeSuccessMessage();
@@ -81,9 +81,23 @@ fileInput.addEventListener('change', () => {
 
       const closeErrorMessage = () => {
         errorMessage.remove();
+        closeForm();
       };
 
       errorMessage.querySelector('.error__button').addEventListener('click', closeErrorMessage);
+
+      const onEscKeyDown = (event) => {
+        if (event.key === 'Escape') {
+          closeErrorMessage();
+        }
+      };
+      document.addEventListener('keydown', onEscKeyDown);
+
+      errorMessage.addEventListener('click', (event) => {
+        if (event.target === errorMessage) {
+          closeErrorMessage();
+        }
+      });
     }
   }
 });
@@ -145,7 +159,7 @@ form.addEventListener('submit', async (event) => {
       closeForm();
     };
 
-    setupSuccessMessageCloseHandlers(successMessage, closeSuccessMessage);
+    closeSuccessMessageOption(successMessage, closeSuccessMessage);
     closeForm();
   };
 
@@ -159,6 +173,12 @@ form.addEventListener('submit', async (event) => {
     };
 
     errorMessage.querySelector('.error__button').addEventListener('click', closeErrorMessage);
+
+    errorMessage.addEventListener('click', (event) => {
+      if (event.target === errorMessage) {
+        closeErrorMessage();
+      }
+    });
   };
 
   try {
