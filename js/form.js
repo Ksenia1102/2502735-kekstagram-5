@@ -56,6 +56,12 @@ const setupSuccessMessageCloseHandlers = (successMessage) => {
 
   successMessage.querySelector('.success__button').addEventListener('click', closeSuccessMessage);
   document.addEventListener('keydown', onEscKeyDown);
+
+  successMessage.addEventListener('click', (event) => {
+    if (event.target === successMessage) {
+      closeSuccessMessage();
+    }
+  });
 };
 
 fileInput.addEventListener('change', () => {
