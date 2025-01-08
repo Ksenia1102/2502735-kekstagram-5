@@ -7,9 +7,9 @@ const effectLevelContainer = document.querySelector('.img-upload__effect-level')
 const effectLevelValue = document.querySelector('.effect-level__value');
 const effectsList = document.querySelector('.effects__list');
 
-const scaleStep = 25;
-const scaleMin = 25;
-const scaleMax = 100;
+const SCALE_STEP = 25;
+const SCALE_MIN = 25;
+const SCALE_MAX = 100;
 let currentScale = 100;
 
 const EFFECTS = [
@@ -30,15 +30,15 @@ const updateScale = () => {
 };
 
 scaleControlSmaller.addEventListener('click', () => {
-  if (currentScale > scaleMin) {
-    currentScale -= scaleStep;
+  if (currentScale > SCALE_MIN) {
+    currentScale -= SCALE_STEP;
     updateScale();
   }
 });
 
 scaleControlBigger.addEventListener('click', () => {
-  if (currentScale < scaleMax) {
-    currentScale += scaleStep;
+  if (currentScale < SCALE_MAX) {
+    currentScale += SCALE_STEP;
     updateScale();
   }
 });

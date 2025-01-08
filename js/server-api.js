@@ -1,16 +1,16 @@
 const BASE_URL = 'https://29.javascript.htmlacademy.pro/kekstagram';
 
-const ROUTE = {
+const Route = {
   GET_DATA: '/data',
   SEND_DATA: '/',
 };
 
-const METHOD = {
+const Method = {
   GET: 'GET',
   POST: 'POST',
 };
 
-const serverRequest = (route, method = METHOD.GET, body = null) =>
+const serverRequest = (route, method = Method.GET, body = null) =>
   fetch(`${BASE_URL}${route}`, { method, body })
     .then((response) => response.json())
     .catch((error) => {
@@ -18,12 +18,12 @@ const serverRequest = (route, method = METHOD.GET, body = null) =>
     });
 
 const fetchPhotos = (onSuccess, onError) =>
-  serverRequest(ROUTE.GET_DATA, METHOD.GET)
+  serverRequest(Route.GET_DATA, Method.GET)
     .then((data) => onSuccess(data))
     .catch(onError);
 
 const sendPhotoData = (body, onSuccess, onError) =>
-  serverRequest(ROUTE.SEND_DATA, METHOD.POST, body)
+  serverRequest(Route.SEND_DATA, Method.POST, body)
     .then((data) => onSuccess(data))
     .catch(onError);
 

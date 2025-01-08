@@ -13,13 +13,19 @@ const submitButton = form.querySelector('[type="submit"]');
 
 const successTemplate = document.querySelector('#success').content.querySelector('.success');
 const errorTemplate = document.querySelector('#error').content.querySelector('.error');
-const pattern = /^#[a-zа-яё0-9]{1,19}$/;
+const PATTERN = /^#[a-zа-яё0-9]{1,19}$/;
 
 const pristine = new Pristine(form, {
   classTo: 'img-upload__field-wrapper',
   errorTextParent: 'img-upload__field-wrapper',
   errorTextClass: 'text__error'
 });
+
+const createEscHandler = (closeCallback, exceptionTargets = []) => ({ key, target }) => {
+  if (key === 'Escape' && !exceptionTargets.includes(target)) {
+    closeCallback();
+  }
+};
 
 const openForm = () => {
   overlay.classList.remove('hidden');
@@ -34,21 +40,17 @@ const closeForm = () => {
   resetEffects();
 };
 
-cancelButton.addEventListener('click', closeForm);
-document.addEventListener('keydown', ({ key, target }) => {
-  if (key === 'Escape' && ![hashtagsInput, descriptionInput].includes(target)) {
-    closeForm();
-  }
-});
+const onCloseForm = () => closeForm();
+
+cancelButton.addEventListener('click', onCloseForm);
+document.addEventListener('keydown',createEscHandler(closeForm, [hashtagsInput, descriptionInput]));
 
 const closeSuccessMessageOption = (successMessage, closeSuccessMessage) => {
-  const onEscKeyDown = ({ key }) => {
-    if (key === 'Escape') {
-      closeSuccessMessage();
-    }
-  };
+  const onCloseSuccessMessage = () => closeSuccessMessage();
 
-  successMessage.querySelector('.success__button').addEventListener('click', closeSuccessMessage);
+  const onEscKeyDown = createEscHandler(closeSuccessMessage);
+
+  successMessage.querySelector('.success__button').addEventListener('click', onCloseSuccessMessage);
 
   document.addEventListener('keydown', onEscKeyDown);
 
@@ -83,14 +85,11 @@ fileInput.addEventListener('change', () => {
         closeForm();
       };
 
-      errorMessage.querySelector('.error__button').addEventListener('click', closeErrorMessage);
+      const onCloseErrorMessage = () => closeErrorMessage();
+      const onEscKeyDownError = createEscHandler(closeErrorMessage);
 
-      const onEscKeyDown = ({ key }) => {
-        if (key === 'Escape') {
-          closeErrorMessage();
-        }
-      };
-      document.addEventListener('keydown', onEscKeyDown);
+      errorMessage.querySelector('.error__button').addEventListener('click', onCloseErrorMessage);
+      document.addEventListener('keydown', onEscKeyDownError);
 
       errorMessage.addEventListener('click', ({ target }) => {
         if (target === errorMessage) {
@@ -107,7 +106,7 @@ const validateHashtags = (value) => {
   }
 
   const hashtags = value.trim().toLowerCase().split(/\s+/);
-  const isValid = hashtags.every((tag) => pattern.test(tag));
+  const isValid = hashtags.every((tag) => PATTERN.test(tag));
   const hasNoDuplicates = new Set(hashtags).size === hashtags.length;
   return hashtags.length <= 5 && isValid && hasNoDuplicates;
 };
@@ -117,7 +116,7 @@ const getHashtagErrorMessage = (value) => {
   if (hashtags.length > 5) {
     return 'Не более 5 хэш-тегов';
   }
-  if (!hashtags.every((tag) => pattern.test(tag))) {
+  if (!hashtags.every((tag) => PATTERN.test(tag))) {
     return 'Хэш-тег начинается с символа # (решётка), после которой содержать только буквы и цифры длиной до 20 символов';
   }
   if (new Set(hashtags).size !== hashtags.length) {
@@ -159,7 +158,6 @@ form.addEventListener('submit', async (event) => {
     };
 
     closeSuccessMessageOption(successMessage, closeSuccessMessage);
-    closeForm();
   };
 
   const onError = () => {
@@ -171,14 +169,17 @@ form.addEventListener('submit', async (event) => {
       closeForm();
     };
 
-    errorMessage.querySelector('.error__button').addEventListener('click', closeErrorMessage);
+    const onCloseErrorMessage = () => closeErrorMessage();
+    const onEscKeyDownError = createEscHandler(closeErrorMessage);
 
-    const onEscKeyDown = ({ key }) => {
-      if (key === 'Escape') {
+    errorMessage.querySelector('.error__button').addEventListener('click', onCloseErrorMessage);
+    document.addEventListener('keydown', onEscKeyDownError);
+
+    errorMessage.addEventListener('click', ({ target }) => {
+      if (target === errorMessage) {
         closeErrorMessage();
       }
-    };
-    document.addEventListener('keydown', onEscKeyDown);
+    });
   };
 
   try {

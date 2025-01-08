@@ -11,7 +11,7 @@ export function showBigPicture({ url, description, likes, comments }) {
   const closeButton = bigPicture.querySelector('#picture-cancel');
 
   let currentIndex = 0;
-  const commentsUploadedCount = 5;
+  const COMMENTS_UPLOADED_COUNT = 5;
 
   commentCountBlock.classList.remove('hidden');
   commentsLoader.classList.remove('hidden');
@@ -20,7 +20,7 @@ export function showBigPicture({ url, description, likes, comments }) {
     const commentsFragment = document.createDocumentFragment();
     const commentsToShow = comments.slice(
       currentIndex,
-      currentIndex + commentsUploadedCount
+      currentIndex + COMMENTS_UPLOADED_COUNT
     );
 
     commentsToShow.forEach(({ avatar, name, message }) => {
@@ -43,7 +43,7 @@ export function showBigPicture({ url, description, likes, comments }) {
 
     socialComments.appendChild(commentsFragment);
 
-    currentIndex += commentsUploadedCount;
+    currentIndex += COMMENTS_UPLOADED_COUNT;
 
     const displayedComments = Math.min(currentIndex, comments.length);
     commentCountBlock.innerHTML = `${displayedComments} из <span class='comments-count'>${comments.length}</span> комментариев`;
@@ -70,6 +70,10 @@ export function showBigPicture({ url, description, likes, comments }) {
     commentsLoader.removeEventListener('click', onCommentsLoaderClick);
   }
 
+  function onCloseBigPicture() {
+    closeBigPicture();
+  }
+
   bigPictureImg.src = url;
   bigPictureImg.alt = description;
   likesCount.textContent = likes;
@@ -85,6 +89,6 @@ export function showBigPicture({ url, description, likes, comments }) {
   bigPicture.classList.remove('hidden');
   body.classList.add('modal-open');
 
-  closeButton.addEventListener('click', closeBigPicture);
+  closeButton.addEventListener('click', onCloseBigPicture);
   document.addEventListener('keydown', onEscPress);
 }
