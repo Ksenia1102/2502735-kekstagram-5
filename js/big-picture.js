@@ -7,8 +7,8 @@ export function showBigPicture({ url, description, likes, comments }) {
   const socialCaption = bigPicture.querySelector('.social__caption');
   const commentCountBlock = bigPicture.querySelector('.social__comment-count');
   const commentsLoader = bigPicture.querySelector('.comments-loader');
-  const body = document.body;
   const closeButton = bigPicture.querySelector('#picture-cancel');
+  const body = document.body;
 
   let currentIndex = 0;
   const COMMENTS_UPLOADED_COUNT = 5;

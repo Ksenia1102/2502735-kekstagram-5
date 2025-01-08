@@ -28,4 +28,3 @@ const sendPhotoData = (body, onSuccess, onError) =>
     .catch(onError);
 
 export { fetchPhotos, sendPhotoData };
-

@@ -19,7 +19,6 @@ function debounce(callback, timeoutDelay = 500) {
 }
 
 const sortRandom = () => Math.random() - 0.5;
-
 const sortByComments = (pictureA, pictureB) => pictureB.comments.length - pictureA.comments.length;
 
 const getFilteredPictures = () => {
