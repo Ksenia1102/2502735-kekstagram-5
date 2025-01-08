@@ -10,8 +10,8 @@ export function showBigPicture({ url, description, likes, comments }) {
   const closeButton = bigPicture.querySelector('#picture-cancel');
   const body = document.body;
 
-  let currentIndex = 0;
   const COMMENTS_UPLOADED_COUNT = 5;
+  let currentIndex = 0;
 
   commentCountBlock.classList.remove('hidden');
   commentsLoader.classList.remove('hidden');
