@@ -1,4 +1,3 @@
-//import { generateObjects } from './util.js';
 import { showBigPicture } from './big-picture.js';
 
 export function renderMin(photos) {
